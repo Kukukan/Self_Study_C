@@ -1,56 +1,50 @@
-// C++ program to implement iterative Binary Search
-#include <bits/stdc++.h>
+#include <iostream>
+#include <vector>
+#include <algorithm>
+
 using namespace std;
 
-// An iterative binary search function.
+int n, h;
+vector<int> batches;
 
-void selectionsort(int arr[], int n)
-{
-	int i,j,min_idx;
-	for(i=0; i<n-1; ++i)
-	{
-		min_idx = i;
-		for(j=i+1; j<n; ++j)
-		{
-			if(arr[j] < arr[min_idx])
-				min_idx = j;
-		}
-		if(min_idx != i)
-			swap(arr[min_idx], arr[i]);
-	}
-}
-int binarySearch(int arr[], int l, int r, int x)
-{
-	while (l <= r) {
-		int m = l + (r - l) / 2;
-
-		// Check if x is present at mid
-		if (arr[m] == x)
-			return m;
-
-		// If x greater, ignore left half
-		if (arr[m] < x)
-			l = m + 1;
-
-		// If x is smaller, ignore right half
-		else
-			r = m - 1;
-	}
-
-	// If we reach here, then element was not present
-	return -1;
+// Function to check if a given speed K is sufficient
+bool canInspectAll(int k) {
+    long long totalHours = 0;
+    for (int donuts : batches) {
+        totalHours += (donuts + k - 1) / k; // Equivalent to ceil(donuts / k)
+        if (totalHours > h) return false;
+    }
+    return totalHours <= h;
 }
 
-// Driver code
-int main(void)
-{
-	int arr[] = { 2, 3, 4, 100, 40 };
-	int x = 12;
-	int n = sizeof(arr) / sizeof(arr[0]);
-	int result = binarySearch(arr, 0, n - 1, x);
-	if(result == -1)
-        cout << "Element is not present in array";
-    else
-        cout << "Element is present at index " << result;
-	return 0;
+int findMinSpeed() {
+    int left = 1, right = *max_element(batches.begin(), batches.end());
+    int result = right;
+
+    while (left <= right) {
+        int mid = left + (right - left) / 2;
+
+        if (canInspectAll(mid)) {
+            result = mid;  // Found a feasible K, try reducing it
+            right = mid - 1;
+        } else {
+            left = mid + 1;
+        }
+    }
+
+    return result;
+}
+
+int main() {
+    cin >> n;
+    batches.resize(n);
+
+    for (int i = 0; i < n; i++) {
+        cin >> batches[i];
+    }
+
+    cin >> h;
+
+    cout << findMinSpeed() << endl;
+    return 0;
 }
